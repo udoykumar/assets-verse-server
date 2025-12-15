@@ -6,7 +6,7 @@ require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIP_SECRET);
 const jwt = require("jsonwebtoken");
 
-const port = process.env.SITE_DOMAIN || 3000;
+const port = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cors());
@@ -74,24 +74,24 @@ async function run() {
     };
 
     // PACKAGES APIs
-    // app.get("/packages", async (req, res) => {
-    //   try {
-    //     const result = await packagesCollection.find().toArray();
-    //     res.send(result);
-    //   } catch (err) {
-    //     res.status(500).send({ error: err.message });
-    //   }
-    // });
+    app.get("/packages", async (req, res) => {
+      try {
+        const result = await packagesCollection.find().toArray();
+        res.send(result);
+      } catch (err) {
+        res.status(500).send({ error: err.message });
+      }
+    });
 
-    // // TESTIMONIALS APIs
-    // app.get("/testimonials", async (req, res) => {
-    //   try {
-    //     const result = await testimonialsCollection.find().toArray();
-    //     res.send(result);
-    //   } catch (error) {
-    //     res.status(500).send({ error: error.message });
-    //   }
-    // });
+    // TESTIMONIALS APIs
+    app.get("/testimonials", async (req, res) => {
+      try {
+        const result = await testimonialsCollection.find().toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ error: error.message });
+      }
+    });
 
     // // ANALYTICS APIs
     // app.get(
