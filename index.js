@@ -4,21 +4,44 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIP_SECRET);
-const jwt = require("jsonwebtoken");
 
 const port = process.env.PORT || 3000;
+const admin = require("firebase-admin");
+
+const serviceAccount = require("./firebase-admin-sdk.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 app.use(express.json());
 app.use(cors());
 
-// JWT token generator
-app.post("/jwt", (req, res) => {
-  const { email } = req.body;
-  const token = jwt.sign({ email }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
-  res.send({ token });
-});
+const verifyFBToken = async (req, res, next) => {
+  const token = req.headers.authorization;
+  if (token) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+  try {
+    const idToken = token.split(" ")[1];
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    console.log("decoded in the token", decoded);
+    req.decoded_email = decoded.email;
+  } catch (error) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+
+  next();
+};
+
+// // JWT token generator
+// app.post("/jwt", (req, res) => {
+//   const { email } = req.body;
+//   const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+//     expiresIn: "7d",
+//   });
+//   res.send({ token });
+// });
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.rlqi2bh.mongodb.net/?appName=Cluster0`;
 
@@ -34,7 +57,7 @@ async function run() {
   try {
     // await client.connect();
 
-    const db = client.db("assetverse_db");
+    const db = client.db("assets_verse");
     const usersCollection = db.collection("users");
     const assignedAssetsCollection = db.collection("assignedAssets");
     const assetsCollection = db.collection("assets");
@@ -45,20 +68,20 @@ async function run() {
     const testimonialsCollection = db.collection("testimonials");
 
     // Middleware: verify token
-    const verifyToken = (req, res, next) => {
-      const authHeader = req.headers.authorization;
-      if (!authHeader)
-        return res.status(401).send({ message: "Unauthorized access" });
+    // const verifyToken = (req, res, next) => {
+    //   const authHeader = req.headers.authorization;
+    //   if (!authHeader)
+    //     return res.status(401).send({ message: "Unauthorized access" });
 
-      const token = authHeader.split(" ")[1];
-      console.log(token);
+    //   const token = authHeader.split(" ")[1];
+    //   console.log(token);
 
-      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) return res.status(403).send({ message: "Forbidden access" });
-        req.decoded = decoded;
-        next();
-      });
-    };
+    //   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    //     if (err) return res.status(403).send({ message: "Forbidden access" });
+    //     req.decoded = decoded;
+    //     next();
+    //   });
+    // };
 
     // Middleware: verify HR role
     const verifyHR = async (req, res, next) => {
@@ -96,7 +119,7 @@ async function run() {
     // ANALYTICS APIs
     app.get(
       "/analytics/asset-distribution/:hrEmail",
-      verifyToken,
+      verifyFBToken,
       verifyHR,
       async (req, res) => {
         try {
@@ -120,7 +143,7 @@ async function run() {
 
     app.get(
       "/analytics/top-requests/:hrEmail",
-      verifyToken,
+      verifyFBToken,
       verifyHR,
       async (req, res) => {
         try {
@@ -189,7 +212,7 @@ async function run() {
       }
     });
 
-    app.get("/users", verifyToken, async (req, res) => {
+    app.get("/users", verifyFBToken, async (req, res) => {
       const cursor = usersCollection.find();
       const result = await cursor.toArray();
       res.send(result);
@@ -212,7 +235,7 @@ async function run() {
       res.send({ role: user?.role });
     });
 
-    app.patch("/users/:email", verifyToken, async (req, res) => {
+    app.patch("/users/:email", verifyFBToken, async (req, res) => {
       const email = req.params.email;
       const body = req.body;
 
@@ -225,7 +248,6 @@ async function run() {
 
       res.send(result);
     });
-
     // PAYMENT RELATED APIs
     app.post("/create-checkout-session", async (req, res) => {
       try {
@@ -392,7 +414,7 @@ async function run() {
       });
     });
 
-    app.get("/assets/:hrEmail", verifyToken, async (req, res) => {
+    app.get("/assets/:hrEmail", verifyFBToken, async (req, res) => {
       const hrEmail = req.params.hrEmail;
       const assets = await assetsCollection.find({ hrEmail }).toArray();
       res.send(assets);
@@ -405,7 +427,7 @@ async function run() {
       res.send(result);
     });
 
-    app.patch("/assets/:id", verifyToken, verifyHR, async (req, res) => {
+    app.patch("/assets/:id", verifyFBToken, verifyHR, async (req, res) => {
       const id = req.params.id;
       const body = req.body;
 
@@ -426,7 +448,7 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/assets", verifyToken, verifyHR, async (req, res) => {
+    app.post("/assets", verifyFBToken, verifyHR, async (req, res) => {
       try {
         const {
           productName,
@@ -486,7 +508,7 @@ async function run() {
       }
     });
 
-    app.delete("/assets/:id", verifyToken, verifyHR, async (req, res) => {
+    app.delete("/assets/:id", verifyFBToken, verifyHR, async (req, res) => {
       const id = new ObjectId(req.params.id);
       const result = await assetsCollection.deleteOne({ _id: id });
       res.send(result);
@@ -502,13 +524,13 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/requests", verifyToken, verifyHR, async (req, res) => {
+    app.get("/requests", verifyFBToken, verifyHR, async (req, res) => {
       const hrEmail = req.query.hrEmail;
       const result = await requestsCollection.find({ hrEmail }).toArray();
       res.send(result);
     });
 
-    app.patch("/requests/:id", verifyToken, verifyHR, async (req, res) => {
+    app.patch("/requests/:id", verifyFBToken, verifyHR, async (req, res) => {
       const id = new ObjectId(req.params.id);
       const update = req.body;
 
@@ -521,7 +543,7 @@ async function run() {
     });
 
     // AFFILIATIONS APIS
-    app.post("/affiliations", verifyToken, async (req, res) => {
+    app.post("/affiliations", verifyFBToken, async (req, res) => {
       try {
         const affiliation = req.body;
         const { employeeEmail, hrEmail } = affiliation;
@@ -599,7 +621,7 @@ async function run() {
 
     app.delete(
       "/affiliations/remove/:email",
-      verifyToken,
+      verifyFBToken,
       verifyHR,
       async (req, res) => {
         const employeeEmail = req.params.email;
