@@ -19,7 +19,7 @@ app.use(cors());
 
 const verifyFBToken = async (req, res, next) => {
   const token = req.headers.authorization;
-  if (token) {
+  if (!token) {
     return res.status(401).send({ message: "unauthorized access" });
   }
   try {
@@ -85,10 +85,10 @@ async function run() {
 
     // Middleware: verify HR role
     const verifyHR = async (req, res, next) => {
-      const email = req.decoded?.email;
+      const email = req.decoded_email;
 
       const user = await usersCollection.findOne({ email });
-
+      console.log(user);
       if (!user || user?.role !== "hr") {
         return res.status(403).send({ message: "Access denied. HR only." });
       }
