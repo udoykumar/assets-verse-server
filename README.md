@@ -7,9 +7,9 @@ This repository contains the Node.js + Express + MongoDB backend API with secure
 
 ### Smart Asset & HR Management Platform
 
-**Live Demo** →
+**Live Demo** → https://assets-verse-server.vercel.app/
 
-**Frontend Repo** →
+**Repository link** → https://github.com/udoykumar/assets-verse-server.git
 
 ---
 
@@ -79,7 +79,7 @@ This repository contains the Node.js + Express + MongoDB backend API with secure
 | **Express.js**                   | API Framework           |
 | **MongoDB (Atlas)**              | Database                |
 | **Stripe**                       | Subscription & payments |
-| **JWT**                          | Authentication          |
+| **firebase sdk token**           | Authentication          |
 | **Firebase (client-side login)** | User auth provider      |
 | **CORS**                         | Resource access control |
 
@@ -94,7 +94,7 @@ This repository contains the Node.js + Express + MongoDB backend API with secure
 
 ### **Inside server:**
 
-- `/jwt` – Issue token
+- `/sdk token` – Issue token
 
 - `verifyToken` – Validate token
 
@@ -122,7 +122,7 @@ Create a .env file:
 PORT=3000
 DB_USER=your_mongo_user
 DB_PASS=your_mongo_pass
-JWT_SECRET=your_secret_key
+FB_SECRET=your_secret_key
 STRIPE_SECRET=your_stripe_secret_key
 SITE_DOMAIN=http://localhost:5173
 ```
@@ -137,15 +137,11 @@ User logs in → Firebase returns authenticated user.
 
 ### ✔️ 2. Frontend requests JWT from backend
 
-```bash
-axios.post("/jwt", { email })
-```
-
 **Backend returns:**
 
 ```bash
 {
-  "token": "your.jwt.token"
+  "token": "your.sdk-token"
 }
 ```
 
