@@ -70,22 +70,6 @@ async function run() {
     const packagesCollection = db.collection("packages");
     const testimonialsCollection = db.collection("testimonials");
 
-    // Middleware: verify token
-    // const verifyToken = (req, res, next) => {
-    //   const authHeader = req.headers.authorization;
-    //   if (!authHeader)
-    //     return res.status(401).send({ message: "Unauthorized access" });
-
-    //   const token = authHeader.split(" ")[1];
-    //   console.log(token);
-
-    //   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    //     if (err) return res.status(403).send({ message: "Forbidden access" });
-    //     req.decoded = decoded;
-    //     next();
-    //   });
-    // };
-
     // Middleware: verify HR role
     const verifyHR = async (req, res, next) => {
       const email = req.decoded_email;
