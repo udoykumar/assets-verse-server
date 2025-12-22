@@ -37,15 +37,6 @@ const verifyFBToken = async (req, res, next) => {
   next();
 };
 
-// // JWT token generator
-// app.post("/jwt", (req, res) => {
-//   const { email } = req.body;
-//   const token = jwt.sign({ email }, process.env.JWT_SECRET, {
-//     expiresIn: "7d",
-//   });
-//   res.send({ token });
-// });
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.u12htqq.mongodb.net/?appName=Cluster0`;
 
 const client = new MongoClient(uri, {
@@ -498,34 +489,6 @@ async function run() {
     app.delete("/assets/:id", verifyFBToken, verifyHR, async (req, res) => {
       const id = new ObjectId(req.params.id);
       const result = await assetsCollection.deleteOne({ _id: id });
-      res.send(result);
-    });
-
-    // REQUESTS APIs
-    app.post("/requests", async (req, res) => {
-      const data = req.body;
-      data.requestDate = new Date();
-      data.requestStatus = "pending";
-
-      const result = await requestsCollection.insertOne(data);
-      res.send(result);
-    });
-
-    app.get("/requests", verifyFBToken, verifyHR, async (req, res) => {
-      const hrEmail = req.query.hrEmail;
-      const result = await requestsCollection.find({ hrEmail }).toArray();
-      res.send(result);
-    });
-
-    app.patch("/requests/:id", verifyFBToken, verifyHR, async (req, res) => {
-      const id = new ObjectId(req.params.id);
-      const update = req.body;
-
-      const result = await requestsCollection.updateOne(
-        { _id: id },
-        { $set: update }
-      );
-
       res.send(result);
     });
 
