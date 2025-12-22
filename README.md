@@ -6,9 +6,10 @@ This repository contains the Node.js + Express + MongoDB backend API with secure
 ---
 
 ### Smart Asset & HR Management Platform
-**Live Demo** → https://assetverse.netlify.app/
 
-**Frontend Repo** → https://github.com/ebrahim2355/assetverse-client
+**Live Demo** →
+
+**Frontend Repo** →
 
 ---
 
@@ -87,8 +88,8 @@ This repository contains the Node.js + Express + MongoDB backend API with secure
 ## 📂 Project Structure
 
 .
-├── index.js  (main file)
-├── dotenv     (environment variables)
+├── index.js (main file)
+├── dotenv (environment variables)
 └── package.json
 
 ### **Inside server:**
@@ -116,6 +117,7 @@ This repository contains the Node.js + Express + MongoDB backend API with secure
 ## 🔑 Environment Variables
 
 Create a .env file:
+
 ```bash
 PORT=3000
 DB_USER=your_mongo_user
@@ -134,11 +136,13 @@ SITE_DOMAIN=http://localhost:5173
 User logs in → Firebase returns authenticated user.
 
 ### ✔️ 2. Frontend requests JWT from backend
+
 ```bash
 axios.post("/jwt", { email })
 ```
 
 **Backend returns:**
+
 ```bash
 {
   "token": "your.jwt.token"
@@ -146,11 +150,13 @@ axios.post("/jwt", { email })
 ```
 
 ### ✔️ 3. Token stored in localStorage
+
 ```bash
 access-token = <jwt>
 ```
 
 ### ✔️ 4. Axios interceptor attaches token
+
 ```bash
 Authorization: Bearer <jwt>
 ```
@@ -180,11 +186,13 @@ Only HR can:
 ## 📡 Main API Endpoints (Summary)
 
 ### 🔐 Authentication
+
 | Method | Route  | Description |
 | ------ | ------ | ----------- |
 | POST   | `/jwt` | Issue JWT   |
 
 ### 👥 Users
+
 | Method | Route                | Description       |
 | ------ | -------------------- | ----------------- |
 | POST   | `/users/employee`    | Register employee |
@@ -194,6 +202,7 @@ Only HR can:
 | GET    | `/users/:email/role` | Get role          |
 
 ### 📦 Assets
+
 | Method | Route              | Auth    | Description          |
 | ------ | ------------------ | ------- | -------------------- |
 | GET    | `/assets`          | Public  | Paginated asset list |
@@ -203,6 +212,7 @@ Only HR can:
 | DELETE | `/assets/:id`      | HR Only | Delete asset         |
 
 ### 📨 Requests
+
 | Method | Route           | Auth    | Description             |
 | ------ | --------------- | ------- | ----------------------- |
 | POST   | `/requests`     | Public  | Employee requests asset |
@@ -210,6 +220,7 @@ Only HR can:
 | PATCH  | `/requests/:id` | HR Only | Update status           |
 
 ### 🤝 Affiliations
+
 | Method | Route                         | Auth    | Description             |
 | ------ | ----------------------------- | ------- | ----------------------- |
 | POST   | `/affiliations`               | Token   | Auto-associate employee |
@@ -217,6 +228,7 @@ Only HR can:
 | DELETE | `/affiliations/remove/:email` | HR Only | Remove employee         |
 
 ### 💳 Payments
+
 | Method | Route                      | Description          |
 | ------ | -------------------------- | -------------------- |
 | POST   | `/create-checkout-session` | Stripe checkout link |
@@ -224,6 +236,7 @@ Only HR can:
 | GET    | `/checkout-session/:id`    | Get Stripe session   |
 
 ### 📊 Analytics
+
 | Method | Route                                    | Auth    | Description    |
 | ------ | ---------------------------------------- | ------- | -------------- |
 | GET    | `/analytics/asset-distribution/:hrEmail` | HR Only | Pie chart data |
@@ -234,11 +247,12 @@ Only HR can:
 ## ▶️ Run the Server
 
 Install packages:
+
 ```bash
 npm install
 npm run dev
 // or
 nodemon index.js
 ```
+
 **Server runs on:**
-http://localhost:3000
