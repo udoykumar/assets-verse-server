@@ -492,6 +492,34 @@ async function run() {
       res.send(result);
     });
 
+    // REQUESTS APIs
+    app.post("/requests", async (req, res) => {
+      const data = req.body;
+      data.requestDate = new Date();
+      data.requestStatus = "pending";
+
+      const result = await requestsCollection.insertOne(data);
+      res.send(result);
+    });
+
+    app.get("/requests", verifyFBToken, verifyHR, async (req, res) => {
+      const hrEmail = req.query.hrEmail;
+      const result = await requestsCollection.find({ hrEmail }).toArray();
+      res.send(result);
+    });
+
+    app.patch("/requests/:id", verifyFBToken, verifyHR, async (req, res) => {
+      const id = new ObjectId(req.params.id);
+      const update = req.body;
+
+      const result = await requestsCollection.updateOne(
+        { _id: id },
+        { $set: update }
+      );
+
+      res.send(result);
+    });
+
     // AFFILIATIONS APIS
     app.post("/affiliations", verifyFBToken, async (req, res) => {
       try {
